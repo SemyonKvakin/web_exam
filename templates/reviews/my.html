@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4 text-center">Мои рецензии</h2>
+    {% for review in reviews %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ url_for('books.show', book_id=review.book_id) }}">{{ review.book.name }}</a>
+                </h5>
+                <p class="card-subtitle text-muted mb-2">
+                    Оценка: {{ review.rating }} ({{ review.rating_label }}) — статус: {{ review.status.name }}
+                </p>
+                <div class="card-text">{{ review.text_html | safe }}</div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted text-center">У вас пока нет рецензий.</p>
+    {% endfor %}
+</div>
+{% endblock %}

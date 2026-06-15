@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4 text-center">Рассмотрение рецензии</h2>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ review.book.name }}</h5>
+            <p class="card-subtitle text-muted mb-2">
+                {{ review.user.full_name }} — оценка: {{ review.rating }} ({{ review.rating_label }})
+            </p>
+            <p class="text-muted">{{ review.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+            <div class="card-text">{{ review.text_html | safe }}</div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center gap-2">
+        <form method="POST" action="{{ url_for('reviews.reject', review_id=review.id) }}">
+            <button type="submit" class="btn btn-danger">Отклонить</button>
+        </form>
+        <form method="POST" action="{{ url_for('reviews.approve', review_id=review.id) }}">
+            <button type="submit" class="btn btn-success">Одобрить</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

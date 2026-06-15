@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% from 'pagination.html' import render_pagination %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4 text-center">Каталог книг</h1>
+
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Жанры</th>
+                <th>Год</th>
+                <th>Оценка</th>
+                <th>Рецензии</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                <tr>
+                    <td>{{ book.name }}</td>
+                    <td>{{ book.genres | map(attribute='name') | join(', ') }}</td>
+                    <td>{{ book.year }}</td>
+                    <td>{{ "%.2f" | format(book.rating) }}</td>
+                    <td>{{ book.reviews_count }}</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-primary" href="{{ url_for('books.show', book_id=book.id) }}">Просмотр</a>
+                        {% if current_user.is_authenticated and (current_user.is_admin or current_user.is_moderator) %}
+                            <a class="btn btn-sm btn-warning" href="{{ url_for('books.edit', book_id=book.id) }}">Редактировать</a>
+                        {% endif %}
+                        {% if current_user.is_authenticated and current_user.is_admin %}
+                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                data-book-id="{{ book.id }}"
+                                data-book-name="{{ book.name }}">Удалить</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {{ render_pagination(pagination, 'index') }}
+
+    {% if current_user.is_authenticated and current_user.is_admin %}
+        <div class="text-center my-3">
+            <a class="btn btn-lg btn-dark" href="{{ url_for('books.new') }}">Добавить книгу</a>
+        </div>
+    {% endif %}
+</div>
+
+{% if current_user.is_authenticated and current_user.is_admin %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" id="deleteForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Удаление книги</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteText"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                    <button type="submit" class="btn btn-danger">Да</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const bookId = button.getAttribute('data-book-id');
+            const bookName = button.getAttribute('data-book-name');
+            document.getElementById('deleteText').textContent =
+                'Вы уверены, что хотите удалить книгу ' + bookName + '?';
+            document.getElementById('deleteForm').action = '/books/' + bookId + '/delete';
+        });
+    }
+</script>
+{% endblock %}

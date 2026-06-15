@@ -1,0 +1,11 @@
+.main {
+    min-height: 60vh;
+}
+
+.alerts-area .alert {
+    margin-bottom: 0;
+}
+
+.card-text img {
+    max-width: 100%;
+}

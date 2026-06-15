@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+instance/
+instance/project.db
+media/images/*
+!media/images/.gitkeep
+.DS_Store
+migrations/

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            {% if book.cover %}
+                <img src="{{ book.cover.url }}" class="img-fluid rounded" alt="{{ book.name }}">
+            {% else %}
+                <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white" style="height: 300px;">Нет обложки</div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.name }}</h1>
+            <p class="text-muted">{{ book.genres | map(attribute='name') | join(', ') }}</p>
+            <p><strong>Автор:</strong> {{ book.author }}</p>
+            <p><strong>Год:</strong> {{ book.year }}</p>
+            <p><strong>Издательство:</strong> {{ book.publisher }}</p>
+            <p><strong>Объём:</strong> {{ book.pages }} стр.</p>
+            <p><strong>Средняя оценка:</strong> {{ "%.2f" | format(book.rating) }} ({{ book.reviews_count }} рец.)</p>
+        </div>
+    </div>
+
+    <section class="my-4">
+        <h3>Описание</h3>
+        <div>{{ full_desc_html | safe }}</div>
+    </section>
+
+    <section class="my-4">
+        <h3>Рецензии</h3>
+        {% for review in reviews %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ review.user.full_name }}</h5>
+                    <p class="card-subtitle text-muted mb-2">Оценка: {{ review.rating }} ({{ review.rating_label }})</p>
+                    <div class="card-text">{{ review.text_html | safe }}</div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted">Рецензий пока нет.</p>
+        {% endfor %}
+
+        {% if user_review %}
+            <h4 class="mt-4">Ваша рецензия</h4>
+            <div class="card mb-3 border-primary">
+                <div class="card-body">
+                    <p class="card-subtitle text-muted mb-2">
+                        Оценка: {{ user_review.rating }} ({{ user_review.rating_label }})
+                        — статус: {{ user_review.status.name }}
+                    </p>
+                    <div class="card-text">{{ user_review.text_html | safe }}</div>
+                </div>
+            </div>
+        {% elif can_write %}
+            <a class="btn btn-dark" href="{{ url_for('books.new_review', book_id=book.id) }}">Написать рецензию</a>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
